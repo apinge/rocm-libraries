@@ -200,6 +200,7 @@ set( MIOpen_Source
     solver/conv/conv_asm_5x10u2v2b1.cpp
     solver/conv/conv_asm_5x10u2v2f1.cpp
     solver/conv/conv_asm_7x7c3h224w224k64u2v2p3q3f1.cpp
+    solver/conv/conv_asm_dw3d_z3h5w5_c512_d61h45w80_bf16.cpp
     solver/conv/conv_asm_dir_BwdWrW1x1.cpp
     solver/conv/conv_asm_dir_BwdWrW3x3.cpp
     solver/conv/conv_asm_implicit_gemm_bwd_v4r1_dynamic.cpp
@@ -622,6 +623,7 @@ if( MIOPEN_BACKEND MATCHES "OpenCL" OR MIOPEN_BACKEND STREQUAL "HIPOC" OR MIOPEN
         kernels/conv5x10u2v2f1.s
         kernels/conv5x10u2v2b1.s
         kernels/conv7x7c3h224w224k64u2v2p3q3f1.s
+        kernels/convz3h5w5c512d61h45w80g512u1v1w1p0p2p2bf16f1.s
         kernels/xform_out.s
         kernels/gcnAsmBNBwdTrainSpatial.s
         kernels/MIOpenTensorKernels.cl

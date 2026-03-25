@@ -361,6 +361,21 @@ struct MIOPEN_INTERNALS_EXPORT ConvAsm7x7c3h224w224k64u2v2p3q3f1 final : ConvSol
                              const miopen::conv::ProblemDescription&) const override;
 };
 
+/// Placeholder ASM solver: 3D depthwise bf16, NCDHW 1x512x61x45x80, kernel 3x5x5, pad (0,2,2), gfx942/gfx950.
+/// Kernel body is intentionally empty; replace convz3h5w5c512d61h45w80g512u1v1w1p0p2p2bf16f1.s contents.
+struct MIOPEN_INTERNALS_EXPORT ConvAsmDw3dZ3h5w5c512d61h45w80Bf16 final : ConvSolver
+{
+    const std::string& SolverDbId() const override
+    {
+        return GetSolverDbId<ConvAsmDw3dZ3h5w5c512d61h45w80Bf16>();
+    }
+
+    bool IsApplicable(const ExecutionContext&,
+                      const miopen::conv::ProblemDescription&) const override;
+    ConvSolution GetSolution(const ExecutionContext&,
+                             const miopen::conv::ProblemDescription&) const override;
+};
+
 struct MIOPEN_INTERNALS_EXPORT ConvOclDirectFwd11x11 final : ConvSolver
 {
     const std::string& SolverDbId() const override

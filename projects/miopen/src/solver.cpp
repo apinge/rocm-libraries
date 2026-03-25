@@ -812,6 +812,10 @@ inline SolverRegistrar::SolverRegistrar(IdRegistryData& registry)
                        ++id,
                        conv::TransposedConvMPBidirectWinograd_xdlops<6, 3>{},
                        miopenConvolutionAlgoWinograd);
+    RegisterWithSolver(registry,
+                       ++id,
+                       conv::ConvAsmDw3dZ3h5w5c512d61h45w80Bf16{},
+                       miopenConvolutionAlgoDirect);
     //  IMPORTANT: New solvers should be added to the end of the function, and don't leave a white
     //  space between this comment and the newly registered solver(s)!
 }
