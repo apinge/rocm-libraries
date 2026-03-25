@@ -28,7 +28,7 @@
 #include <miopen/conv/solvers.hpp>
 #include <miopen/gcn_asm_utils.hpp>
 #include <miopen/env.hpp>
-#include <miopen/conv/invokers/gen_x_w_y_pad.hpp>
+#include <miopen/conv/invokers/asm_dw3d_z3h5w5bf16.hpp>
 #include <miopen/mlo_internal.hpp>
 
 MIOPEN_DECLARE_ENV_VAR_BOOL(MIOPEN_DEBUG_CONV_DIRECT_ASM_DW3D_Z3H5W5_C512_D61H45W80_BF16)
@@ -85,6 +85,10 @@ bool ConvAsmDw3dZ3h5w5c512d61h45w80Bf16::IsApplicable(const ExecutionContext& ct
     if(g != problem.GetInChannels() || g != problem.GetOutChannels())
         return false;
 
+    // Kernel passes nullptr bias; no bias buffer in DataInvokeParams.
+    if(problem.GetBias() != 0)
+        return false;
+
     // clang-format off
     return problem.GetBatchSize() == 1
         && problem.GetInChannels() == 512
@@ -118,19 +122,20 @@ ConvSolution ConvAsmDw3dZ3h5w5c512d61h45w80Bf16::GetSolution(const ExecutionCont
     KernelInfo constr_params;
     constr_params.comp_options = options.str();
 
-    // Placeholder launch config; replace when the ASM kernel is implemented.
-    constr_params.l_wk.push_back(64);
+    // conv_depthwise3d_hip: __launch_bounds__(256,1); grid dim = (batch, out_channel, out_D) =
+    // (1, 512, 59) for pyhip case3. hipExtModuleLaunchKernel globalWorkSize = gridDim * blockDim.
+    constr_params.l_wk.push_back(256);
     constr_params.l_wk.push_back(1);
     constr_params.l_wk.push_back(1);
-    constr_params.g_wk.push_back(1);
-    constr_params.g_wk.push_back(1);
-    constr_params.g_wk.push_back(1);
+    constr_params.g_wk.push_back(256u); // gridDim.x(1) * blockDim.x(256)
+    constr_params.g_wk.push_back(512u); // gridDim.y(512) * blockDim.y(1)
+    constr_params.g_wk.push_back(59u);  // gridDim.z(59) * blockDim.z(1)
 
     constr_params.kernel_file = kKernelFile;
     constr_params.kernel_name = kKernelName;
 
     result.construction_params.push_back(constr_params);
-    result.invoker_factory = &miopen::conv::MakeGenericXWYPadInvoker;
+    result.invoker_factory = &miopen::conv::MakeAsmDw3dZ3h5w5Bf16Invoker;
     return result;
 }
 

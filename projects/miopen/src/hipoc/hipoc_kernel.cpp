@@ -80,6 +80,13 @@ static std::string DimToFormattedString(const size_t* dims, size_t count)
     return ss.str();
 }
 
+MIOPEN_INTERNALS_EXPORT void HIPOCKernelInvoke::RunRaw(void* args, std::size_t size) const
+{
+    if(coop_launch)
+        MIOPEN_THROW(miopenStatusNotImplemented);
+    run(args, size);
+}
+
 void HIPOCKernelInvoke::run(void* args, std::size_t size) const
 {
     MIOPEN_LOG_I2("kernel_name = "

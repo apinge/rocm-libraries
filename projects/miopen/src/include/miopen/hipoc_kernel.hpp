@@ -182,6 +182,9 @@ struct HIPOCKernelInvoke
         }
     }
 
+    /// Launch with a raw kernarg buffer (e.g. HIP-compiled ASM with fixed kernarg_segment_size).
+    MIOPEN_INTERNALS_EXPORT void RunRaw(void* args, std::size_t size) const;
+
     void SetLocalDims(size_t dim_x, size_t dim_y, size_t dim_z) { ldims = {dim_x, dim_y, dim_z}; }
 
     void SetGlobalDims(size_t dim_x, size_t dim_y, size_t dim_z) { gdims = {dim_x, dim_y, dim_z}; }
