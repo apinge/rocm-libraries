@@ -68,30 +68,24 @@ miopenGcnAsmConvZ3h5w5c512d61h45w80g512u1v1w1p0p2p2bf16f1:
 .if ROCM_METADATA_VERSION == 5
 .rodata
 .p2align 6
-
-__sgpr_reserve_vcc_default = 1
-__sgpr_reserve_xnack_default = 0
-__sgpr_reserve_flatscr_default = 0
-__amdhsa_next_free_sgpr = SGPR_COUNT - (2 * (__sgpr_reserve_flatscr_default + __sgpr_reserve_xnack_default + __sgpr_reserve_vcc_default))
-
+; gfx942/gfx950: architected flat scratch — omit .amdhsa_reserve_flat_scratch / reserve_vcc / reserve_xnack
+; (same style as dynamic_igemm/.../gfx950/*.s in this repo).
 .amdhsa_kernel miopenGcnAsmConvZ3h5w5c512d61h45w80g512u1v1w1p0p2p2bf16f1
-        .amdhsa_dx10_clamp 0
-        .amdhsa_ieee_mode 0
-        .amdhsa_float_round_mode_32 0
-        .amdhsa_float_round_mode_16_64 0
-        .amdhsa_float_denorm_mode_32 0
-        .amdhsa_float_denorm_mode_16_64 0
-        .amdhsa_reserve_flat_scratch __sgpr_reserve_flatscr_default
-        .amdhsa_reserve_xnack_mask __sgpr_reserve_xnack_default
-        .amdhsa_reserve_vcc __sgpr_reserve_vcc_default
-        .amdhsa_system_sgpr_workgroup_id_x 1
-        .amdhsa_system_sgpr_workgroup_id_y 1
-        .amdhsa_system_sgpr_workgroup_id_z 1
-        .amdhsa_system_vgpr_workitem_id 1
-        .amdhsa_user_sgpr_kernarg_segment_ptr 1
-        .amdhsa_next_free_vgpr VGPR_COUNT
-        .amdhsa_next_free_sgpr __amdhsa_next_free_sgpr
-        .amdhsa_group_segment_fixed_size LDS_SIZE
+    .amdhsa_group_segment_fixed_size LDS_SIZE
+    .amdhsa_user_sgpr_kernarg_segment_ptr 1
+    .amdhsa_system_sgpr_workgroup_id_x 1
+    .amdhsa_system_sgpr_workgroup_id_y 1
+    .amdhsa_system_sgpr_workgroup_id_z 1
+    .amdhsa_system_vgpr_workitem_id 1
+    .amdhsa_next_free_vgpr VGPR_COUNT
+    .amdhsa_next_free_sgpr SGPR_COUNT
+    .amdhsa_ieee_mode 0
+    .amdhsa_dx10_clamp 0
+    .amdhsa_float_round_mode_32 0
+    .amdhsa_float_round_mode_16_64 0
+    .amdhsa_tg_split 0
+    ; (VGPR_COUNT+3)/4*4 with VGPR_COUNT=8 -> 8
+    .amdhsa_accum_offset 8
 .end_amdhsa_kernel
 
 .altmacro
